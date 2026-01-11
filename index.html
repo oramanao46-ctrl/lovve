@@ -78,12 +78,12 @@
         #love-timer { font-size: 1.1rem; color: #fff; font-weight: 500; letter-spacing: 0.5px; }
         .timer-highlight { font-weight: 700; color: #ff9ecd; font-variant-numeric: tabular-nums; }
 
-        /* --- Image Wrapper (เปลี่ยนจาก Video Wrapper) --- */
+        /* --- Image Wrapper --- */
         #video-wrapper {
             position: absolute; top: 55%; left: 50%; transform: translate(-50%, -50%);
             z-index: 30; opacity: 0; pointer-events: none; transition: opacity 0.8s;
             display: flex; flex-direction: column; align-items: center;
-            width: 90%; max-width: 320px; height: auto; /* ปรับความสูงอัตโนมัติ */
+            width: 90%; max-width: 320px; height: auto; 
             border-radius: 15px;
             overflow: hidden; 
             box-shadow: 0 10px 30px rgba(0,0,0,0.5);
@@ -92,7 +92,7 @@
         }
         #video-wrapper.active { opacity: 1; pointer-events: auto; }
 
-        /* ข้อความซ้อนบนรูปภาพ (ด้านบนสุด) */
+        /* ข้อความซ้อนบนรูปภาพ */
         .video-overlay-text {
             position: absolute; top: 0; left: 0; width: 100%;
             padding: 15px 10px 30px 10px; 
@@ -103,11 +103,11 @@
             text-shadow: 0 1px 2px rgba(0,0,0,0.8);
         }
 
-        /* สไตล์สำหรับรูปภาพ Intro */
+        /* รูปภาพ Intro */
         #intro-image {
             width: 100%; 
             height: 100%;
-            object-fit: cover; /* ทำให้รูปเต็มกรอบโดยไม่เบี้ยว */
+            object-fit: cover; 
             display: block;
         }
 
@@ -202,7 +202,7 @@
     <div id="video-wrapper">
         <div class="video-overlay-text">我们第一次见面，也是我为你拍的第一张照片</div>
         
-        <img id="intro-image" src="photo6.png" alt="Our special memory">
+        <img id="intro-image" src="photo6.jpg" alt="Our special memory">
     </div>
 
     <div id="content-box">
@@ -302,7 +302,7 @@
             setTimeout(() => { currentPhotoIndex = (currentPhotoIndex + 1) % photoList.length; imgElement.src = photoList[currentPhotoIndex]; imgElement.onload = () => { imgElement.classList.remove('photo-fade-out'); isChanging = false; }; }, 500);
         }
 
-        // --- Intro Image Transition System (แทนที่ Video System) ---
+        // --- Intro Image Transition System ---
         const videoWrapper = document.getElementById('video-wrapper');
 
         // ฟังก์ชันสำหรับซ่อนรูปแล้วโชว์ข้อความ
