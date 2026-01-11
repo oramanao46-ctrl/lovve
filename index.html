@@ -18,7 +18,8 @@
             margin: 0; padding: 0;
             background: var(--bg-color);
             overflow: hidden;
-            font-family: 'Mali', cursive; 
+            /* ใช้ฟอนต์ Mali สำหรับตัวเลข/อังกฤษ และฟอนต์ระบบสำหรับภาษาจีน */
+            font-family: 'Mali', 'Microsoft YaHei', sans-serif; 
             width: 100vw; height: 100dvh; touch-action: none; position: fixed; color: #fff;
         }
 
@@ -43,7 +44,7 @@
         .start-btn {
             padding: 15px 40px; border-radius: 50px;
             background: #fff; color: #333;
-            font-family: 'Mali', cursive; font-size: 1.3rem; font-weight: 600;
+            font-family: 'Mali', sans-serif; font-size: 1.3rem; font-weight: 600;
             box-shadow: 0 0 20px rgba(255, 255, 255, 0.5); 
             animation: pulseBtn 2s infinite; border: none;
         }
@@ -59,7 +60,7 @@
         #name-container.visible { opacity: 1; transform: translate(-50%, -50%) scale(1); }
 
         .glowing-text {
-            font-family: 'Mali', cursive; font-weight: 700;
+            font-family: 'Mali', 'Microsoft YaHei', sans-serif; font-weight: 700;
             font-size: 2rem; color: #fff; 
             text-shadow: 0 0 10px #ff69b4, 0 0 20px #ff1493;
             white-space: nowrap; margin: 0; letter-spacing: 1px;
@@ -95,7 +96,7 @@
         .video-overlay-text {
             position: absolute; top: 0; left: 0; width: 100%;
             padding: 15px 10px 30px 10px; 
-            background: linear-gradient(to bottom, rgba(0,0,0,0.9), transparent);
+            background: linear-gradient(to bottom, rgba(0,0,0,0.8), transparent);
             color: #fff; font-size: 0.95rem; text-align: center;
             font-weight: 500; z-index: 10; pointer-events: none;
             line-height: 1.5;
@@ -267,7 +268,8 @@
         window.addEventListener('resize', resizeCanvas); resizeCanvas();
 
         let fireworks = []; let particles = []; let mode = 0; let timer = 0;
-        
+        let finaleTriggered = false;
+
         class Firework {
             constructor(sx, sy, tx, ty, special) {
                 this.x = sx; this.y = sy; this.sx = sx; this.sy = sy; this.tx = tx; this.ty = ty;
@@ -279,7 +281,11 @@
                 this.coords.pop(); this.coords.unshift([this.x, this.y]); this.speed *= this.acc;
                 const vx = Math.cos(this.angle) * this.speed; const vy = Math.sin(this.angle) * this.speed;
                 this.travel = Math.hypot(this.sx - (this.x+vx), this.sy - (this.y+vy));
-                if (this.travel >= this.dist) { createParticles(this.tx, this.ty, this.special, this.hue); fireworks.splice(i, 1); if(this.special) triggerFinale(); } else { this.x += vx; this.y += vy; }
+                if (this.travel >= this.dist) { 
+                    createParticles(this.tx, this.ty, this.special, this.hue); 
+                    fireworks.splice(i, 1); 
+                    if(this.special) triggerFinale(); 
+                } else { this.x += vx; this.y += vy; }
             }
             draw() {
                 ctx.beginPath(); ctx.moveTo(this.coords[this.coords.length-1][0], this.coords[this.coords.length-1][1]); ctx.lineTo(this.x, this.y);
@@ -324,19 +330,27 @@
         function startShow() {
             const ss = document.getElementById('start-screen'); ss.style.opacity = 0; setTimeout(()=> ss.style.display = 'none', 800);
             document.getElementById('bg-music').play().catch(()=>{}); mode = 1; loop();
-            setTimeout(() => { mode = 2; setTimeout(() => { fireworks.push(new Firework(cw/2, ch, cw/2, ch*0.3, true)); }, 1500); }, 6000);
+            
+            // ตั้งเวลาบังคับให้ขึ้นข้อความภายใน 6 วินาที (แก้ปัญหาพลุไม่ระเบิด/วิดีโอไม่ขึ้น)
+            setTimeout(triggerFinale, 6000); 
+            
+            setTimeout(() => { mode = 2; setTimeout(() => { fireworks.push(new Firework(cw/2, ch, cw/2, ch*0.3, true)); }, 1500); }, 4000);
         }
 
         function triggerFinale() {
+            if(finaleTriggered) return; 
+            finaleTriggered = true;
+
             const flash = document.getElementById('flash-overlay'); flash.style.opacity = 0.5; setTimeout(()=> flash.style.opacity = 0, 1000);
+            
+            // แสดงชื่อและเวลา
             setTimeout(() => { document.getElementById('name-container').classList.add('visible'); mode = 3; }, 500);
             
-            // เริ่มแสดงวิดีโอ
+            // แสดงวิดีโอ
             setTimeout(() => { 
                 document.getElementById('video-wrapper').classList.add('active');
-                // สั่งเล่นวิดีโออัตโนมัติ (Muted)
-                video.play().catch(e => console.log("Auto play prevented"));
-            }, 3000);
+                video.play().catch(e => console.log("Video auto-play blocked by browser policy"));
+            }, 2500);
         }
     </script>
 </body>
