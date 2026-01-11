@@ -142,7 +142,31 @@
         }
         .photo-frame:active { transform: rotate(-3deg) scale(0.95); }
         .couple-photo { width: 100%; height: 100%; object-fit: cover; background: #eee; }
-        .click-hint { font-size: 0.8rem; color: #999; margin-top: 5px; font-weight: 400; margin-bottom: 30px;}
+        .click-hint { font-size: 0.8rem; color: #999; margin-top: 5px; font-weight: 400; margin-bottom: 15px;}
+
+        /* --- ปุ่มสุ่มข้อความ --- */
+        .love-note-btn {
+            margin-top: 10px; padding: 12px 30px;
+            background: linear-gradient(135deg, #ff9a9e 0%, #ff6a88 100%);
+            border: none; border-radius: 30px; color: #fff; 
+            font-size: 1.1rem; font-weight: 600; font-family: 'Mali', 'Microsoft YaHei', sans-serif;
+            cursor: pointer; box-shadow: 0 5px 15px rgba(255, 105, 180, 0.4);
+            transition: transform 0.2s;
+            flex-shrink: 0;
+            margin-bottom: 30px; 
+        }
+        .love-note-btn:active { transform: scale(0.95); }
+        
+        /* Popup */
+        #note-popup {
+            position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%) scale(0.8);
+            background: white; color: #333; padding: 25px; border-radius: 20px;
+            box-shadow: 0 10px 50px rgba(0,0,0,0.5); z-index: 100; opacity: 0; pointer-events: none;
+            transition: all 0.3s; text-align: center; width: 80%; max-width: 280px;
+            border: 3px solid #ff9a9e;
+        }
+        #note-popup.show { opacity: 1; transform: translate(-50%, -50%) scale(1); pointer-events: auto; }
+        .note-text { font-size: 1.1rem; line-height: 1.5; margin-bottom: 10px; color: #ff6a88; font-weight: 600; font-family: 'Microsoft YaHei', sans-serif; }
 
         /* Animation หัวใจเต้น */
         @keyframes heartbeat { 0% {transform: scale(1);} 50% {transform: scale(1.1);} 100% {transform: scale(1);} }
@@ -201,6 +225,13 @@
             <img src="photo1.jpg" id="slideshow-img" class="couple-photo">
         </div>
         <div class="click-hint">点击图片查看更多 📸</div>
+
+        <button class="love-note-btn" onclick="showNextNote()">💌 想我的时候按这里</button>
+    </div>
+
+    <div id="note-popup">
+        <div class="note-text" id="note-content">...</div>
+        <div style="font-size:0.9rem; color:#999; margin-top:10px;">(点击任意处关闭)</div>
     </div>
 
     <script>
@@ -227,6 +258,27 @@
         }
         setInterval(updateTimer, 1000); 
         updateTimer();
+
+        // --- ระบบข้อความ (สุ่ม) ---
+        const loveNotes = [
+            "今天你已经很棒啦 ❤️", 
+            "别忘了照顾好自己，我很担心你 🥺"
+        ];
+
+        function showNextNote() {
+            const popup = document.getElementById('note-popup');
+            const randomIndex = Math.floor(Math.random() * loveNotes.length);
+            document.getElementById('note-content').innerText = loveNotes[randomIndex];
+            popup.classList.add('show');
+        }
+
+        document.addEventListener('click', function(event) {
+            const popup = document.getElementById('note-popup');
+            const btn = document.querySelector('.love-note-btn');
+            if (popup.classList.contains('show') && !btn.contains(event.target)) {
+                popup.classList.remove('show');
+            }
+        });
 
         // --- Decor (Hearts & Sunflowers) ---
         const decoLayer = document.getElementById('deco-layer');
@@ -330,27 +382,22 @@
         function startShow() {
             const ss = document.getElementById('start-screen'); ss.style.opacity = 0; setTimeout(()=> ss.style.display = 'none', 800);
             document.getElementById('bg-music').play().catch(()=>{}); mode = 1; loop();
-            
-            // ตั้งเวลาบังคับให้ขึ้นข้อความภายใน 6 วินาที (แก้ปัญหาพลุไม่ระเบิด/วิดีโอไม่ขึ้น)
-            setTimeout(triggerFinale, 6000); 
-            
-            setTimeout(() => { mode = 2; setTimeout(() => { fireworks.push(new Firework(cw/2, ch, cw/2, ch*0.3, true)); }, 1500); }, 4000);
+            setTimeout(() => { mode = 2; setTimeout(() => { fireworks.push(new Firework(cw/2, ch, cw/2, ch*0.3, true)); }, 1500); }, 6000);
         }
 
         function triggerFinale() {
-            if(finaleTriggered) return; 
+            if(finaleTriggered) return; // Prevent double trigger
             finaleTriggered = true;
 
             const flash = document.getElementById('flash-overlay'); flash.style.opacity = 0.5; setTimeout(()=> flash.style.opacity = 0, 1000);
-            
-            // แสดงชื่อและเวลา
             setTimeout(() => { document.getElementById('name-container').classList.add('visible'); mode = 3; }, 500);
             
-            // แสดงวิดีโอ
+            // เริ่มแสดงวิดีโอ
             setTimeout(() => { 
                 document.getElementById('video-wrapper').classList.add('active');
-                video.play().catch(e => console.log("Video auto-play blocked by browser policy"));
-            }, 2500);
+                // สั่งเล่นวิดีโออัตโนมัติ (Muted)
+                video.play().catch(e => console.log("Auto play prevented"));
+            }, 3000);
         }
     </script>
 </body>
