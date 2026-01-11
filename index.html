@@ -78,12 +78,12 @@
         #love-timer { font-size: 1.1rem; color: #fff; font-weight: 500; letter-spacing: 0.5px; }
         .timer-highlight { font-weight: 700; color: #ff9ecd; font-variant-numeric: tabular-nums; }
 
-        /* --- Video Wrapper --- */
+        /* --- Image Wrapper (เปลี่ยนจาก Video Wrapper) --- */
         #video-wrapper {
             position: absolute; top: 55%; left: 50%; transform: translate(-50%, -50%);
             z-index: 30; opacity: 0; pointer-events: none; transition: opacity 0.8s;
             display: flex; flex-direction: column; align-items: center;
-            width: 90%; max-width: 320px;
+            width: 90%; max-width: 320px; height: auto; /* ปรับความสูงอัตโนมัติ */
             border-radius: 15px;
             overflow: hidden; 
             box-shadow: 0 10px 30px rgba(0,0,0,0.5);
@@ -92,7 +92,7 @@
         }
         #video-wrapper.active { opacity: 1; pointer-events: auto; }
 
-        /* ข้อความซ้อนบนวิดีโอ (ด้านบนสุด) */
+        /* ข้อความซ้อนบนรูปภาพ (ด้านบนสุด) */
         .video-overlay-text {
             position: absolute; top: 0; left: 0; width: 100%;
             padding: 15px 10px 30px 10px; 
@@ -103,8 +103,12 @@
             text-shadow: 0 1px 2px rgba(0,0,0,0.8);
         }
 
-        video {
-            width: 100%; display: block;
+        /* สไตล์สำหรับรูปภาพ Intro */
+        #intro-image {
+            width: 100%; 
+            height: 100%;
+            object-fit: cover; /* ทำให้รูปเต็มกรอบโดยไม่เบี้ยว */
+            display: block;
         }
 
         /* --- Content Box --- */
@@ -196,12 +200,9 @@
     </div>
 
     <div id="video-wrapper">
-        <div class="video-overlay-text">这是我们见面的第一天，<br>这是一起拍摄的第一个视频</div>
+        <div class="video-overlay-text">我们第一次见面，也是我为你拍的第一张照片</div>
         
-        <video id="intro-video" autoplay muted playsinline>
-            <source src="video.mp4" type="video/mp4">
-            Your browser does not support the video tag.
-        </video>
+        <img id="intro-image" src="photo6.png" alt="Our special memory">
     </div>
 
     <div id="content-box">
@@ -301,18 +302,17 @@
             setTimeout(() => { currentPhotoIndex = (currentPhotoIndex + 1) % photoList.length; imgElement.src = photoList[currentPhotoIndex]; imgElement.onload = () => { imgElement.classList.remove('photo-fade-out'); isChanging = false; }; }, 500);
         }
 
-        // --- Video System ---
+        // --- Intro Image Transition System (แทนที่ Video System) ---
         const videoWrapper = document.getElementById('video-wrapper');
-        const video = document.getElementById('intro-video');
 
-        // เมื่อวิดีโอจบ ให้ซ่อนวิดีโอแล้วแสดงข้อความ
-        video.onended = function() {
-            videoWrapper.style.opacity = 0;
-            setTimeout(() => {
-                videoWrapper.style.display = 'none';
-                document.getElementById('content-box').classList.add('visible');
-            }, 800);
-        };
+        // ฟังก์ชันสำหรับซ่อนรูปแล้วโชว์ข้อความ
+        function finishIntroImage() {
+             videoWrapper.style.opacity = 0;
+             setTimeout(() => {
+                 videoWrapper.style.display = 'none';
+                 document.getElementById('content-box').classList.add('visible');
+             }, 800);
+        }
 
         // --- Fireworks System ---
         const canvas = document.getElementById("canvas"); const ctx = canvas.getContext("2d"); let cw, ch;
@@ -392,11 +392,12 @@
             const flash = document.getElementById('flash-overlay'); flash.style.opacity = 0.5; setTimeout(()=> flash.style.opacity = 0, 1000);
             setTimeout(() => { document.getElementById('name-container').classList.add('visible'); mode = 3; }, 500);
             
-            // เริ่มแสดงวิดีโอ
+            // เริ่มแสดงรูปภาพ intro
             setTimeout(() => { 
                 document.getElementById('video-wrapper').classList.add('active');
-                // สั่งเล่นวิดีโออัตโนมัติ (Muted)
-                video.play().catch(e => console.log("Auto play prevented"));
+                
+                // ตั้งเวลาโชว์รูปภาพ 5 วินาที แล้วค่อยไปหน้าข้อความ
+                setTimeout(finishIntroImage, 5000); 
             }, 3000);
         }
     </script>
